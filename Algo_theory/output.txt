@@ -1,0 +1,5 @@
+The size of the matching is: 4 
+A0 B0 
+A2 B1 
+A3 B2 
+A4 B3 
