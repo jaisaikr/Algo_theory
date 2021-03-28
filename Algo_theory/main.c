@@ -3,7 +3,6 @@
 
 #define uint unsigned int
 #define UNMATCHED 0xffffffff
-
 #define MAX_INSTANCE_SIZE 500
 
 // Global variables
@@ -45,17 +44,44 @@ vertex uid_to_vertex(uint uid) {
 
 // Insert Function...
 
-
-
 void insert(uint index, uint val){
-    // int i=0;
-    // // while(graph[index][i]!=-1){
-    // //     i++;
-    // // 
 
     graph[index][adj_size[index]] = val;
 
     adj_size[index]++;
+}
+
+// augmenting_path function...
+
+bool augment_path(uint uid) {
+  visited[uid] = true;
+
+  for(int i=0;i<adj_size[uid];i++){
+    uint nbr = graph[uid][i];
+
+    if(visited[nbr]){
+      continue;
+    }
+
+    if(matched[nbr] == UNMATCHED){
+      matched[uid] = nbr;
+      matched[nbr] = uid;
+      return true;
+    }
+
+    else if(matched[nbr] != uid){
+
+      visited[nbr] = true;
+
+      if(augment_path(matched[nbr])){
+        matched[uid] = nbr;
+        matched[nbr] = uid;
+        return true;
+      }
+    }
+
+  }
+    return false;
 }
 
 int main(){
@@ -73,6 +99,7 @@ int main(){
   scanf("%d %d %d\n", &size_A, &size_B, &num_edges);
 
   // Reading input
+  
   vertex vertex_A, vertex_B;
   uint uid_A, uid_B;
   uint i;
@@ -89,53 +116,32 @@ int main(){
     insert(uid_A, uid_B);
 
     insert(uid_B, uid_A);
-    // Build adjacency list
-    // graph[uid_A][i] = (uid_B);
-    // graph[uid_A][i+1] = -1;
-    // graph[uid_B][i] = (uid_A);
-    // graph[uid_B][i+1] = -1;
   }
 
-  for(int i=0;i<(size_A+size_B);i++){
-      for(int j=0;j<adj_size[i];j++){
-          printf("%d ",graph[i][j]);
+  int size_matching = 0;
+
+  for(int i=0;i<size_A;i++){
+    if(matched[i] == UNMATCHED){
+      
+      for(int i=0;i<MAX_INSTANCE_SIZE;i++){
+        visited[i] = false;
       }
-      printf("\n");
+
+      if(augment_path(i)){
+        size_matching++;
+      }
+    }
   }
 
-//   graph[uid_A][i] = -1;
-//   graph[uid_B][i] = -1;
+  printf("The size of the matching is: %d \n", size_matching);
 
+  for(int i=0;i<size_A;i++){
+    if(matched[i]!=UNMATCHED){
+      vertex A = uid_to_vertex(i);
+      vertex B = uid_to_vertex(matched[i]);
+      printf("A%d B%d \n", A.id, B.id);
+    }
+  }
 
 }
 
-/*
-Input :
-
-5 5 10
-A0 B0
-A1 B0
-A2 B0
-A2 B1
-A3 B1
-B2 A3
-A4 B2
-B1 A4
-B3 A4
-B4 A4
-
-
-Output : 
-
-5 
-5 
-5 6 
-6 7 
-7 6 8 9 
-0 1 2 
-2 3 4 
-3 4 
-4 
-4 
-
-*/
